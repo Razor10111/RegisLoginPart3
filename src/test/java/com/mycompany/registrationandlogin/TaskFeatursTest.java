@@ -15,101 +15,87 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author RC_Student_lab
  */
+
 public class TaskFeatursTest {
 
-    
+    private final TaskFeaturs taskFeatures = new TaskFeaturs();  // Instance of TaskFeaturs class
+
+    // Test for checking task description validity
     @Test
     public void testCheckTaskDescription() {
         System.out.println("checkTaskDescription");
-        String Description = "Create Login to authencate users";
-        int num = 0;
-        TaskFeatursTest instance = new TaskFeatursTest ();
-        boolean expResult = true;
-        boolean result = instance.testCheckTaskDescription(description);
-        assertEquals(expResult, result);
-        
+        String description = "Create Login to authenticate users";
+        boolean result = taskFeatures.checkTaskDescription(description);
+        assertTrue(result, "Description should be valid");
     }
+
+    // Test to get the task duration
     @Test
     public void testGetDuration() {
         System.out.println("getDuration");
-        int taskDuration = 0;
-        TaskFeatursTest instance = new TaskFeatursTest();
-        int expResult = 0;
-        int result = instance.getDuration();
-        assertEquals(expResult, result);
-       
+        // Add a task with a duration
+        taskFeatures.addTask("Create Login", "Robyn Harrison", 1, "Create Login to authenticate users", 8);
+        
+        int result = taskFeatures.getDuration();
+        assertEquals(8, result, "Task duration should be 8 hours");
     }
-     public void testCreateTaskID() {
-        System.out.println("Create TaskID"); 
-        String taskname = "add task feature";
+
+    // Test to create a task ID
+    @Test
+    public void testCreateTaskID() {
+        System.out.println("createTaskID");
+        String taskName = "Add Task Feature";
         String developerDetails = "Mike Smith";
-        int taskNumber = 0;
-        TaskFeatursTest  instance = new TaskFeatursTest();
-        String result = instance.testCreateTaskID (int taskNumber,String developerDetails);
-        String expResult = "AD:1:ITH";
-        assertEquals(expResult, result);
-     }
-    /**
-     * Test of printTaskDetails method, of class TaskFeaturs.
-     */
+        int taskNumber = 1;
+        String result = taskFeatures.createTaskID(taskName, developerDetails, taskNumber);
+        String expected = "AD:1:ITH";  // Expected Task ID
+        assertEquals(expected, result, "Task ID format is incorrect");
+    }
+
+    // Test for printing task details
     @Test
     public void testPrintTaskDetails() {
+        System.out.println("printTaskDetails");
         String taskStatus = "To Do";
         String developerDetails = "Robyn Harrison";
-        int taskNumber = 0;
-        String taskDescription  = "Create Login to authencitate users";
-        String tasksID = "";
+        int taskNumber = 1;
+        String taskName = "Create Login";
+        String taskDescription = "Create Login to authenticate users";
+        String taskID = "CL:1:SON";
         int taskDuration = 8;
-        String expResult = taskStatus + developerDetails + "0" + taskName + taskDescription
-        TaskFeatursTest instance = new Tasks (taskNumber);
-        
-}
-    @Test 
-    public void testCreateTaskID2() {
-        System.out.println("Create TaskID"); 
-        String taskname = "add task feature";
-        String developerDetails = "Mike Smith";
-        int taskNumber = 0;
-        TaskFeatursTest  instance = new TaskFeatursTest();
-        String result = instance.printTaskDetails();
-        String expResult = instance.testCreateTaskID2();
-        assertEquals(expResult, result);
-        
-    }
-    @Test
-       public void testCheckTaskDescription2() {
-        System.out.println("checkTaskDescription");
-        String taskDescription = "Create Login to authencate users";
-        TaskFeatursTest instance = new TaskFeatursTest();
-        boolean expResult = false;
-        boolean result = instance.checkTaskDescription();
-        assertEquals(expResult, result);
-     }
-    @Test
-    public void testGetDuration2() {
-        System.out.println("getDuration");
-        int taskDuration = 0;
-        TaskFeatursTest instance = new TaskFeatursTest();
-        int expResult = 0;
-        int result = instance.getDuration();
-        assertEquals(expResult, result);
-     }
 
-   
+        String result = taskFeatures.printTaskDetails(
+            taskStatus,
+            developerDetails,
+            taskNumber,
+            taskName,
+            taskDescription,
+            taskID,
+            taskDuration
+        );
+
+        String expected = "Task Status: To Do\n" +
+                          "Developer Details: Robyn Harrison\n" +
+                          "Task Number: 1\n" +
+                          "Task Name: Create Login\n" +
+                          "Task ID: CL:1:SON\n" +
+                          "Task Duration: 8 hours\n" +
+                          "Task Description: Create Login to authenticate users";
+
+        assertEquals(expected, result, "Task details format is incorrect");
+    }
+    
+    // Test for adding tasks
     @Test
-    public void testPrintTaskDetails2() {
-        System.out.println("printTaskDetails");
-        int details = 0;
-        TaskFeatursTest instance = new TaskFeatursTest();
-        TaskFeatursTest instance = ;
-        String expResult = "Task Status: Doing\n"+
-                           "Developer Details: Mike Snitch\n"+
-                           "Task Number:\n"+
-                           "Task Name: Add Task Feature\n"+
-                           "Task ID: AD:1:TTH\n"+ 
-                           "Task Duration: 10hours";
-        String result = instance.printTaskDetails(int details);
-        assertEquals(expResult, result);
-    }   
+    public void testAddTask() {
+        System.out.println("addTask");
+        taskFeatures.addTask("Add New Feature", "John Doe", 1, "Adding new feature to the system", 5);
+        
+        String taskID = taskFeatures.getTaskID(1); // Assuming task number 1
+        assertEquals("Task1", taskID, "Task ID should be 'Task1'");
+    }
 }
+
+    
+
 
