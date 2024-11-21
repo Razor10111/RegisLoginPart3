@@ -3,156 +3,271 @@
  */
 
 package com.mycompany.registrationandlogin;
+import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.JOptionPane;
 import javax.swing.JDialog;
-/**
- *
- * @author RC_Student_lab
- */
+import javax.swing.*;
+
+import javax.swing.*;
+import java.util.ArrayList;
+
 public class RegistrationAndLogin {
-    static String name;
-    static String surname;
-    static String userName;
-    static String Password;
-    static String Password2;
-    static String user2;
+
+    private static User currentUser;
+    private static TaskFeatures taskManager = new TaskFeatures();
 
     public static void main(String[] args) {
-        EnterUserDetails();
-        CheckUserName();
-        registerUser();
-        loginUser();
-        returnLoginStatus(true);
+        while (true) {
+            String[] options = {"Register", "Login", "Exit"};
+            int choice = JOptionPane.showOptionDialog(
+                    null,
+                    "Welcome! Choose an option:",
+                    "Registration and Login",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+
+            if (choice == 0) {
+                registerUser();
+            } else if (choice == 1) {
+                if (loginUser()) {
+                    userMenu();
+                }
+            } else if (choice == 2 || choice == JOptionPane.CLOSED_OPTION) {
+                JOptionPane.showMessageDialog(null, "Goodbye!");
+                System.exit(0);
+            }
+        }
     }
 
-    public static boolean EnterUserDetails() {
-        name = JOptionPane.showInputDialog("Name");
-        surname = JOptionPane.showInputDialog("Surname");
-        return true;
+    private static void registerUser() {
+        while (true) {
+            String username = JOptionPane.showInputDialog("Enter a username with an underscore and no more than 5 characters:");
+            if (username == null) return; // User canceled
+
+            if (!username.contains("_") || username.length() > 5) {
+                JOptionPane.showMessageDialog(null, "Invalid username. Please try again.");
+                continue;
+            }
+
+            String password = JOptionPane.showInputDialog("Enter a password with at least 8 characters, a capital letter, a number, and a special character:");
+            if (password == null) return; // User canceled
+
+            if (!isValidPassword(password)) {
+                JOptionPane.showMessageDialog(null, "Invalid password. Please try again.");
+                continue;
+            }
+
+            String firstName = JOptionPane.showInputDialog("Enter your first name:");
+            if (firstName == null) return;
+
+            String lastName = JOptionPane.showInputDialog("Enter your last name:");
+            if (lastName == null) return;
+
+            currentUser = new User(username, password, firstName, lastName);
+            JOptionPane.showMessageDialog(null, "Account successfully created!");
+            break;
+        }
     }
 
-    public static boolean CheckUserName() {
-        userName = JOptionPane.showInputDialog("UserName");
-        
-        if (userName.contains("_") ) {
-            JOptionPane.showMessageDialog(null, "Username successfully created");
+    private static boolean loginUser() {
+        if (currentUser == null) {
+            JOptionPane.showMessageDialog(null, "No account found. Please register first.");
+            return false;
+        }
+
+        String username = JOptionPane.showInputDialog("Enter your username:");
+        if (username == null) return false;
+
+        String password = JOptionPane.showInputDialog("Enter your password:");
+        if (password == null) return false;
+
+        if (username.equals(currentUser.getUsername()) && password.equals(currentUser.getPassword())) {
+            JOptionPane.showMessageDialog(null, "Welcome, " + currentUser.getFirstName() + " " + currentUser.getLastName() + "!");
             return true;
         } else {
-            JOptionPane.showMessageDialog(null, "Username is not correct.");
+            JOptionPane.showMessageDialog(null, "Invalid username or password. Please try again.");
             return false;
         }
     }
 
-    public static boolean CheckPasswordComplexity() {
-        Password = JOptionPane.showInputDialog("Password");
-        
-        return Password.length() >= 8 &&
-               Password.matches(".*[A-Z].*") &&
-               Password.matches(".*[0-9].*") &&
-               Password.matches(".*[@#$%&*].*");
-    }
+    private static void userMenu() {
+        while (true) {
+            String[] options = {"Add Tasks", "Show Task Report", "View Longest Task", "Log Out", "Exit"};
+            int choice = JOptionPane.showOptionDialog(
+                    null,
+                    "What would you like to do?",
+                    "User Menu",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
 
-    public static String registerUser() {
-        if (!CheckPasswordComplexity()) {
-            JOptionPane.showMessageDialog(null, "Password is not correct. Ensure it meets complexity requirements.");
-            return null;
-        } else {
-            JOptionPane.showMessageDialog(null, "Password is correct");
-            return Password;
-        }
-    }
-
-    public static boolean loginUser() {
-        user2 = JOptionPane.showInputDialog("Enter your Username");
-        
-        if (!user2.equals(userName)) {
-            JOptionPane.showMessageDialog(null, "Username does not match");
-            return false;
-        }
-
-        Password2 = JOptionPane.showInputDialog("Enter your Password");
-        
-        if (!Password.equals(Password2)) {
-            JOptionPane.showMessageDialog(null, "Password does not match");
-            return false;
-        }
-
-        JOptionPane.showMessageDialog(null, "You have successfully logged in to your profile");
-        return true;
-    }
-
-    public static boolean returnLoginStatus(boolean loggedIn) {
-        if (loggedIn) {
-            JOptionPane.showMessageDialog(null, "Welcome, " + name + " " + surname + "! It is good to see you again.");
-            showOptionsMenu();
-            return true;
-        } else {
-            JOptionPane.showMessageDialog(null, "Incorrect login details. Try again.");
-            return false;
-        }
-    }
-
-    public static void showOptionsMenu() {
-        int choice;
-        
-        do {
-            choice = Integer.parseInt(JOptionPane.showInputDialog("1. Add tasks\n2. Show report\n3. Quit"));
-            
             switch (choice) {
-                case 1:
-                    addTasks();
-                    break;
-                case 2:
-                    JOptionPane.showMessageDialog(null, "Coming Soon");
-                    break;
-                case 3:
+                case 0 -> addTasks();
+                case 1 -> JOptionPane.showMessageDialog(null, taskManager.generateReport());
+                case 2 -> JOptionPane.showMessageDialog(null, taskManager.getLongestTask());
+                case 3 -> {
+                    JOptionPane.showMessageDialog(null, "Logging out...");
+                    return;
+                }
+                case 4, JOptionPane.CLOSED_OPTION -> {
                     JOptionPane.showMessageDialog(null, "Goodbye!");
                     System.exit(0);
-                    break;
-                default:
-                    JOptionPane.showMessageDialog(null, "Invalid choice. Please try again.");
+                }
             }
-        } while (choice != 3);
+        }
     }
 
-    public static void addTasks() {
-        int numTasks = Integer.parseInt(JOptionPane.showInputDialog("Enter the number of tasks"));
-        TaskFeaturs[] tasks = new TaskFeaturs[numTasks];
-        int totalHours = 0;
+    private static void addTasks() {
+        String input = JOptionPane.showInputDialog("How many tasks would you like to add?");
+        if (input == null) return;
+
+        int numTasks;
+        try {
+            numTasks = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid number. Please try again.");
+            return;
+        }
 
         for (int i = 0; i < numTasks; i++) {
-            String taskName = JOptionPane.showInputDialog("Enter task name");
-            String taskDescription = JOptionPane.showInputDialog("Enter task description (less than 50 characters)");
-            String developerDetails = JOptionPane.showInputDialog("Enter developer details");
-            int taskDuration = Integer.parseInt(JOptionPane.showInputDialog("Enter task duration"));
-            int taskStatus = Integer.parseInt(JOptionPane.showInputDialog("Enter task status (1 for To Do, 2 for Done, 3 for Doing)"));
+            String taskName = JOptionPane.showInputDialog("Enter task name:");
+            if (taskName == null) return;
 
-            TaskFeaturs task = new TaskFeaturs(taskName, taskDescription, developerDetails, taskDuration, taskStatus);
-            
-            if (task.checkTaskDescription()) {
-                tasks[i] = task;
-                totalHours += task.getDuration();
-                JOptionPane.showMessageDialog(null, "Task successfully captured");
-            } else {
-                JOptionPane.showMessageDialog(null, "Please enter a task description of less than 50 characters.");
-                i--;  // Retry this task entry
+            String developer = JOptionPane.showInputDialog("Enter developer details:");
+            if (developer == null) return;
+
+            String taskID = JOptionPane.showInputDialog("Enter task ID:");
+            if (taskID == null) return;
+
+            String durationInput = JOptionPane.showInputDialog("Enter task duration (in hours):");
+            if (durationInput == null) return;
+
+            int duration;
+            try {
+                duration = Integer.parseInt(durationInput);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid duration. Task skipped.");
+                continue;
             }
-        }
 
-        displayTaskDetails(tasks, totalHours);
+            String[] statuses = {"To Do", "Done", "Doing"};
+            int statusIndex = JOptionPane.showOptionDialog(
+                    null,
+                    "Select task status:",
+                    "Task Status",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    statuses,
+                    statuses[0]
+            );
+
+            if (statusIndex == JOptionPane.CLOSED_OPTION) return;
+
+            taskManager.addTask(developer, taskName, taskID, duration, statusIndex + 1);
+            JOptionPane.showMessageDialog(null, "Task added successfully!");
+        }
     }
 
-    public static void displayTaskDetails(TaskFeaturs[] tasks, int totalHours) {
-        StringBuilder taskDetails = new StringBuilder();
-
-        for (TaskFeaturs task : tasks) {
-            if (task != null) {
-                taskDetails.append(task.printTaskDetails()).append("\n\n");
-            }
-        }
-
-        JOptionPane.showMessageDialog(null, taskDetails.toString());
-        JOptionPane.showMessageDialog(null, "Total hours: " + totalHours);
+    private static boolean isValidPassword(String password) {
+        return password.length() >= 8 &&
+                password.matches(".*[A-Z].*") &&
+                password.matches(".*[0-9].*") &&
+                password.matches(".*[!@#$%^&*(),.?\":{}|<>].*");
     }
 }
+
+class User {
+    private String username;
+    private String password;
+    private String firstName;
+    private String lastName;
+
+    public User(String username, String password, String firstName, String lastName) {
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+}
+
+class TaskFeatures {
+    private ArrayList<String> developers = new ArrayList<>();
+    private ArrayList<String> taskNames = new ArrayList<>();
+    private ArrayList<String> taskIDs = new ArrayList<>();
+    private ArrayList<Integer> taskDurations = new ArrayList<>();
+    private ArrayList<String> taskStatuses = new ArrayList<>();
+
+    private String getStatusString(int status) {
+        return switch (status) {
+            case 1 -> "To Do";
+            case 2 -> "Done";
+            case 3 -> "Doing";
+            default -> "Unknown";
+        };
+    }
+
+    public void addTask(String developer, String taskName, String taskID, int duration, int status) {
+        developers.add(developer);
+        taskNames.add(taskName);
+        taskIDs.add(taskID);
+        taskDurations.add(duration);
+        taskStatuses.add(getStatusString(status));
+    }
+
+    public String getLongestTask() {
+        if (taskDurations.isEmpty()) return "No tasks available.";
+        int maxIndex = 0;
+        for (int i = 1; i < taskDurations.size(); i++) {
+            if (taskDurations.get(i) > taskDurations.get(maxIndex)) {
+                maxIndex = i;
+            }
+        }
+        return "Developer: " + developers.get(maxIndex) + ", Duration: " + taskDurations.get(maxIndex) + " hours.";
+    }
+
+    public String generateReport() {
+        if (taskNames.isEmpty()) return "No tasks available.";
+        StringBuilder report = new StringBuilder();
+        for (int i = 0; i < taskNames.size(); i++) {
+            report.append("Task Name: ").append(taskNames.get(i))
+                    .append("\nDeveloper: ").append(developers.get(i))
+                    .append("\nTask ID: ").append(taskIDs.get(i))
+                    .append("\nDuration: ").append(taskDurations.get(i))
+                    .append("\nStatus: ").append(taskStatuses.get(i))
+                    .append("\n\n");
+        }
+        return report.toString();
+    }
+}
+
+
+
+
+    
+
+  
